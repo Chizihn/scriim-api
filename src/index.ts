@@ -1,5 +1,5 @@
 import express from "express";
-import cors from "cors";
+// import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 
@@ -17,19 +17,19 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(
-  cors({
-    credentials: true,
-    origin:
-      process.env.NODE_ENV === "production"
-        ? [
-            "https://scriim-dwaycynpx-chizi-njokus-projects.vercel.app",
-            "https://scriim-api.vercel.app",
-            "https://scriim-web.vercel.app",
-          ]
-        : "*",
-  })
-);
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin:
+//       process.env.NODE_ENV === "production"
+//         ? [
+//             "https://scriim-dwaycynpx-chizi-njokus-projects.vercel.app",
+//             "https://scriim-api.vercel.app",
+//             "https://scriim-web.vercel.app",
+//           ]
+//         : "*",
+//   })
+// );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Setup Swagger
