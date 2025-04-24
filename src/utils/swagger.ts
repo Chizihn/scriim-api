@@ -19,6 +19,12 @@ const options: swaggerJsdoc.Options = {
         url: "http://localhost:5000",
         description: "Development server",
       },
+      {
+        url: process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : "https://your-production-url.vercel.app",
+        description: "Production server",
+      },
     ],
   },
   apis: ["./src/routes/*.ts", "./src/models/*.ts", "./src/controllers/*.ts"],
