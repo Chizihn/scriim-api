@@ -22,7 +22,7 @@ const options: swaggerJsdoc.Options = {
       {
         url: process.env.VERCEL_URL
           ? `https://${process.env.VERCEL_URL}`
-          : "https://your-production-url.vercel.app",
+          : "https://scriim-api.vercel.app",
         description: "Production server",
       },
     ],

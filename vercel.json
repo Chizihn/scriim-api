@@ -15,9 +15,8 @@
   "outputDirectory": "dist",
   "env": {
     "MONGODB_URI": "@mongodb-uri",
-    "TWILIO_ACCOUNT_SID": "@twilio-account-sid",
-    "TWILIO_AUTH_TOKEN": "@twilio-auth-token",
-    "TWILIO_PHONE_NUMBER": "@twilio-phone-number",
+    "TERMII_API_KEY": "@termii-api-key",
+    "TERMII_API_URL": "@termii-api-url",
     "EMAIL_USER": "@email-user",
     "EMAIL_PASS": "@email-pass"
   }

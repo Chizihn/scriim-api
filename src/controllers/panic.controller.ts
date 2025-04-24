@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import smsService from "../utils/smsService";
 import panicModel from "../models/panic.model";
 import { formatEmergencyEmail, sendEmail } from "../utils/emailService";
+import termiiService from "../utils/termiiService";
+import { isValidPhoneNumber } from "../utils/validate";
 
 /**
  * Interface for expected request body
@@ -44,10 +45,25 @@ export const createPanic = async (
       return;
     }
 
+    // Validate phone numbers
+    const invalidPhoneNumbers = contacts.filter(
+      (contact) => !isValidPhoneNumber(contact.phoneNumber)
+    );
+
+    if (invalidPhoneNumbers.length > 0) {
+      res.status(400).json({
+        success: false,
+        message:
+          "Invalid phone number format. Must be 11 digits starting with 0",
+        invalidContacts: invalidPhoneNumbers.map((c) => c.name),
+      });
+      return;
+    }
+
     const panic = new panicModel({
       userName: userIdentifier,
       location,
-      contactIds: contacts?.map((c) => c.phoneNumber),
+      contacts: contacts,
       authorityType,
     });
 
@@ -57,12 +73,12 @@ export const createPanic = async (
     let messagesSent = 0;
     for (const contact of contacts || []) {
       try {
-        const message = smsService.formatEmergencyMessage(
+        const message = termiiService.formatEmergencyMessage(
           userIdentifier,
           location.latitude,
           location.longitude
         );
-        await smsService.sendSMS(contact.phoneNumber, message);
+        await termiiService.sendSMS(contact.phoneNumber, message);
         messagesSent++;
       } catch (error) {
         console.error(`Failed to send SMS to ${contact.phoneNumber}:`, error);

@@ -30,7 +30,10 @@ const PanicSchema: Schema = new Schema({
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
   },
-  contacts: [ContactSchema],
+  contacts: {
+    type: [ContactSchema], // Changed from contactIds to contacts with the ContactSchema
+    required: true,
+  },
   authorityType: {
     type: String,
     enum: ["police", "hospital", "fire"],

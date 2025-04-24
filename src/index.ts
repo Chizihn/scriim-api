@@ -8,59 +8,70 @@ import mongoose from "mongoose";
 import panicRoutes from "./routes/panic.routes";
 // import contactRoutes from "./routes/contact.routes";
 
-// Import Swagger setup
-import { setupSwagger } from "./utils/swagger";
-
 // Load environment variables
 dotenv.config();
 
 // Initialize express app
 const app = express();
-const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["https://your-frontend-domain.vercel.app"]
-        : "http://localhost:3000",
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Setup Swagger
-setupSwagger(app);
 
 // Connect to MongoDB
 const mongoUri =
   process.env.MONGODB_URI || "mongodb://localhost:27017/panic-app";
-mongoose
-  .connect(mongoUri)
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((error) => {
+
+// For Vercel serverless functions, we need to handle MongoDB connections differently
+let cachedDb: typeof mongoose | null = null;
+
+async function connectToDatabase() {
+  if (cachedDb) {
+    return cachedDb;
+  }
+
+  const db = await mongoose.connect(mongoUri);
+  cachedDb = db;
+  return db;
+}
+
+// Connect to MongoDB before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
     console.error("MongoDB connection error:", error);
-  });
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
 
 // Routes
 app.use("/api/panic", panicRoutes);
 // app.use("/api/contacts", contactRoutes);
 
-// Health check route
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
+// Root route for API information
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "API is running",
+    endpoints: {
+      panic: "/api/panic",
+    },
+  });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-  console.log(
-    `Swagger documentation available at http://localhost:${port}/api-docs`
-  );
+// Health check route
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Server is running" });
 });
+
+// Start server in development mode
+if (process.env.NODE_ENV !== "production") {
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
 
 export default app;
