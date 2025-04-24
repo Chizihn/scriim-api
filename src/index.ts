@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 // Import routes
 import panicRoutes from "./routes/panic.routes";
 // import contactRoutes from "./routes/contact.routes";
+import { setupSwagger } from "./utils/swagger";
 
 // Load environment variables
 dotenv.config();
@@ -47,6 +48,9 @@ app.use(async (req, res, next) => {
   }
 });
 
+// Setup Swagger
+setupSwagger(app);
+
 // Routes
 app.use("/api/panic", panicRoutes);
 // app.use("/api/contacts", contactRoutes);
@@ -57,16 +61,17 @@ app.get("/", (req, res) => {
     message: "API is running",
     endpoints: {
       panic: "/api/panic",
+      docs: "/api-docs",
     },
   });
 });
 
 // Health check route
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "Server is running" });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Server is running" });
 });
 
-// Start server in development mode
+// Start server in development mode only
 if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT || 5000;
   app.listen(port, () => {
