@@ -8,6 +8,9 @@ import mongoose from "mongoose";
 import panicRoutes from "./routes/panic.routes";
 // import contactRoutes from "./routes/contact.routes";
 
+// Import Swagger setup
+import { setupSwagger } from "./utils/swagger";
+
 // Load environment variables
 dotenv.config();
 
@@ -27,6 +30,9 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Setup Swagger
+setupSwagger(app);
 
 // Connect to MongoDB
 const mongoUri =
@@ -52,6 +58,9 @@ app.get("/health", (req, res) => {
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log(
+    `Swagger documentation available at http://localhost:${port}/api-docs`
+  );
 });
 
 export default app;
