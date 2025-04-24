@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 
 // Import routes
 import panicRoutes from "./routes/panic.routes";
 // import contactRoutes from "./routes/contact.routes";
 import { setupSwagger } from "./utils/swagger";
+import { connectToDatabase } from "./config/db.config";
 
 // Load environment variables
 dotenv.config();
@@ -19,35 +19,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Connect to MongoDB
-const mongoUri =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/panic-app";
-
-// For Vercel serverless functions, we need to handle MongoDB connections differently
-let cachedDb: typeof mongoose | null = null;
-
-async function connectToDatabase() {
-  if (cachedDb) {
-    return cachedDb;
-  }
-
-  const db = await mongoose.connect(mongoUri);
-  cachedDb = db;
-  return db;
-}
-
-// Connect to MongoDB before handling requests
-app.use(async (req, res, next) => {
-  try {
-    await connectToDatabase();
-    next();
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    res.status(500).json({ error: "Database connection failed" });
-  }
-});
-
 // Setup Swagger
 setupSwagger(app);
 
@@ -66,17 +37,17 @@ app.get("/", (req, res) => {
   });
 });
 
-// Health check route
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
-});
+const startServer = async () => {
+  try {
+    await connectToDatabase();
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
+    });
+  } catch (err) {
+    console.error("Failed to connect to database", err);
+    process.exit(1); // Exit if DB connection fails
+  }
+};
 
-// Start server in development mode only
-if (process.env.NODE_ENV !== "production") {
-  const port = process.env.PORT || 5000;
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}
-
+startServer();
 export default app;
