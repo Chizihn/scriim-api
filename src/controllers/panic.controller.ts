@@ -96,6 +96,8 @@ export const createPanic = async (
           location.longitude
         );
         await sendEmail(contact.email, "Emergency Alert", emailContent);
+        console.log("email sent", emailContent);
+
         emailsSent++;
       } catch (error) {
         console.error(`Failed to send email to ${contact.email}:`, error);

@@ -20,14 +20,7 @@ const app = express();
 // app.use(
 //   cors({
 //     credentials: true,
-//     origin:
-//       process.env.NODE_ENV === "production"
-//         ? [
-//             "https://scriim-dwaycynpx-chizi-njokus-projects.vercel.app",
-//             "https://scriim-api.vercel.app",
-//             "https://scriim-web.vercel.app",
-//           ]
-//         : "*",
+//     methods: ["GET", "POST", "PUT", "DELETE"],
 //   })
 // );
 app.use(bodyParser.json());
@@ -50,34 +43,17 @@ app.get("/", (req, res) => {
   });
 });
 
-// For Vercel serverless deployment
-if (process.env.NODE_ENV === "production") {
-  // In production, we don't want to start the server with app.listen
-  // Vercel will handle that for us
-  // Just ensure database connection is established
-  connectToDatabase()
-    .then(() => console.log("Connected to database in serverless environment"))
-    .catch((err) =>
-      console.error(
-        "Failed to connect to database in serverless environment",
-        err
-      )
-    );
-} else {
-  // For local development, start the server as usual
-  const startServer = async () => {
-    try {
-      await connectToDatabase();
-      app.listen(Settings.PORT, () => {
-        console.log(`Server is running on port ${Settings.PORT}`);
-      });
-    } catch (err) {
-      console.error("Failed to connect to database", err);
-      process.exit(1); // Exit if DB connection fails
-    }
-  };
+const startServer = async () => {
+  try {
+    await connectToDatabase();
+    app.listen(Settings.PORT, () => {
+      console.log(`Server is running on port ${Settings.PORT}`);
+    });
+  } catch (err) {
+    console.error("Failed to connect to database", err);
+    process.exit(1); // Exit if DB connection fails
+  }
+};
 
-  startServer();
-}
-
+startServer();
 export default app;
