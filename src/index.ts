@@ -8,6 +8,7 @@ import panicRoutes from "./routes/panic.routes";
 // import contactRoutes from "./routes/contact.routes";
 import { setupSwagger } from "./utils/swagger";
 import { connectToDatabase } from "./config/db.config";
+import Settings from "./config/settings.config";
 
 // Load environment variables
 dotenv.config();
@@ -40,8 +41,8 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   try {
     await connectToDatabase();
-    app.listen(process.env.PORT, () => {
-      console.log(`Server is running on port ${process.env.PORT}`);
+    app.listen(Settings.PORT, () => {
+      console.log(`Server is running on port ${Settings.PORT}`);
     });
   } catch (err) {
     console.error("Failed to connect to database", err);

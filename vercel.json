@@ -14,7 +14,7 @@
   ],
   "outputDirectory": "dist",
   "env": {
-    "MONGODB_URI": "@mongodb-uri",
+    "MONGO_URI": "@mongo-uri",
     "TERMII_API_KEY": "@termii-api-key",
     "TERMII_API_URL": "@termii-api-url",
     "EMAIL_USER": "@email-user",
