@@ -1,9 +1,9 @@
-// api/index.ts
-import express from "express";
-const app = express();
+import app from "../src/index";
+import { connectToDatabase } from "../src/config/db.config";
 
-app.get("/*", (req, res) => {
-  res.json({ status: "working", path: req.path });
+// Connect to database for serverless environment
+connectToDatabase().catch((err) => {
+  console.error("Failed to connect to database in serverless mode", err);
 });
 
 export default app;
